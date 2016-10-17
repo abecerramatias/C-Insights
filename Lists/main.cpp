@@ -47,6 +47,7 @@ node* find(node* head, int value){
 }
 
 node* remove(node* head, node* target){
+    //assuming that the target is not nullptr and the list is not empty
     if(head == target){
         head = head->next;
         delete target;
@@ -66,11 +67,68 @@ node* remove(node* head, node* target){
     return head;    
 }
 
+node* circular_insert (node* head, int data){
+    auto insertion = new node(data);
+    
+    if(nullptr == head){
+        insertion->next = insertion;
+        return insertion;
+    }
+    
+    if(head == head->next){
+        head->next = insertion;
+        insertion->next = head;
+        return insertion;
+    }
+    
+    std::swap(head->data, insertion->data);
+    insertion->next = head->next;
+    head->next = insertion;
+    return head;
+}
+
+node* circular_find(node* head, int value){
+    auto current = head;
+    
+    while(nullptr != current && current->data != value){
+        current = current->next;
+        if(current == head){
+            return nullptr;
+        }
+    }
+    
+    return current;
+}
+
+node* circular_remove(node* head, node* target){
+    if(head == head->next){
+        delete head;
+        return nullptr;
+    }
+    
+    auto next = target->next;
+    target->data = next->data;
+    target->next = next->next;
+    delete next;
+    
+    return target;
+}
+
 void print_list(node* list){
     while(list->next != nullptr){
         cout << list->data << "\n";
         list = list->next;
     }
+}
+
+void print_circular_list(node* list){
+    node* temp = list;
+    do
+    {
+        cout << temp->data << "\n";
+        temp = temp->next;
+    }
+    while(temp != list);
 }
 
 int main(int argc, const char * argv[]) {
@@ -82,19 +140,30 @@ int main(int argc, const char * argv[]) {
     simple_list = insert(simple_list, 1);
     simple_list = insert(simple_list, 3);
     simple_list = insert(simple_list, 5);
-    //print_list(simple_list);
+//    print_list(simple_list);
     
     node* sorted_list = new node(2);
     sorted_list = insert_sorted(sorted_list, 4);
     sorted_list = insert_sorted(sorted_list, 6);
     sorted_list = insert_sorted(sorted_list, 8);
-    node* to_remove = sorted_list;
     sorted_list = insert_sorted(sorted_list, 1);
     sorted_list = insert_sorted(sorted_list, 3);
     sorted_list = insert_sorted(sorted_list, 5);
-    print_list(sorted_list);
-    node* updated_list = remove(sorted_list, to_remove);
+//    print_list(sorted_list);
+    
+    node* circular_list = new node(2);
+    circular_list->next = circular_list;
+    circular_list = circular_insert(circular_list, 4);
+    circular_list = circular_insert(circular_list, 6);
+    circular_list = circular_insert(circular_list, 8);
+    circular_list = circular_insert(circular_list, 1);
+    circular_list = circular_insert(circular_list, 3);
+    circular_list = circular_insert(circular_list, 5);
+    print_circular_list(circular_list);
+    
+    node* node_to_remove = circular_find(circular_list, 6);
+    circular_list = circular_remove(circular_list, node_to_remove);
     cout << "\n\n";
-    print_list(updated_list);
+    print_circular_list(circular_list);
     return 0;
 }
